@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0f1115">
+<title>Kuiz Sejarah SPM</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --card: #1a1d24;
+    --card-2: #22262f;
+    --line: #2c313c;
+    --text: #e8eaee;
+    --muted: #8b93a7;
+    --accent: #6366f1;
+    --accent-2: #8b5cf6;
+    --green: #22c55e;
+    --green-dark: #16a34a;
+    --red: #ef4444;
+    --radius: 16px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    justify-content: center;
+    min-height: 100dvh;
+  }
+  .app {
+    width: 100%;
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100dvh;
+    position: relative;
+    background: var(--bg);
+  }
+
+  /* TOP BAR */
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: rgba(15,17,21,0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line);
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .menu-btn {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 4px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .menu-btn span {
+    width: 18px; height: 2px;
+    background: var(--text);
+    border-radius: 2px;
+  }
+  .menu-btn:active { transform: scale(0.94); }
+  .title-block { flex: 1; min-width: 0; }
+  .title-block h1 { font-size: 15px; font-weight: 700; letter-spacing: -0.2px; }
+  .title-block p { font-size: 11px; color: var(--muted); margin-top: 1px; }
+  .score-pill {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 6px 11px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  /* PROGRESS */
+  .progress-wrap { padding: 0 14px; margin-top: 12px; }
+  .progress-bar {
+    height: 5px;
+    background: var(--card);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    width: 0%;
+    transition: width 0.35s ease;
+    border-radius: 999px;
+  }
+  .progress-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+
+  /* QUIZ BODY */
+  .quiz-body {
+    flex: 1;
+    padding: 16px 14px 130px;
+    overflow-y: auto;
+  }
+  .q-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .q-number {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .q-bab {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(99,102,241,0.15);
+    color: #a5b4fc;
+    border: 1px solid rgba(99,102,241,0.3);
+  }
+  .q-text {
+    font-size: 16px;
+    line-height: 1.55;
+    font-weight: 500;
+    margin-bottom: 18px;
+  }
+
+  /* OPTIONS */
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px;
+    background: var(--card);
+    border: 1.5px solid var(--line);
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+  }
+  .option:active { transform: scale(0.985); }
+  .option.selected {
+    border-color: var(--accent);
+    background: rgba(99,102,241,0.1);
+  }
+  .option.correct {
+    border-color: var(--green);
+    background: rgba(34,197,94,0.1);
+  }
+  .option.wrong {
+    border-color: var(--red);
+    background: rgba(239,68,68,0.1);
+  }
+  .option.locked { cursor: default; }
+  .option.locked:active { transform: none; }
+  .option-letter {
+    width: 26px; height: 26px;
+    border-radius: 8px;
+    background: var(--card-2);
+    border: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+  .option.selected .option-letter {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .option.correct .option-letter {
+    background: var(--green);
+    border-color: var(--green);
+    color: #fff;
+  }
+  .option.wrong .option-letter {
+    background: var(--red);
+    border-color: var(--red);
+    color: #fff;
+  }
+  .option-text {
+    font-size: 14px;
+    line-height: 1.5;
+    flex: 1;
+    padding-top: 2px;
+  }
+
+  /* FEEDBACK */
+  .feedback {
+    margin-top: 16px;
+    padding: 14px;
+    border-radius: 14px;
+    font-size: 13px;
+    line-height: 1.55;
+    display: none;
+    animation: slideIn 0.25s ease;
+  }
+  .feedback.show { display: block; }
+  .feedback.correct {
+    background: rgba(34,197,94,0.08);
+    border: 1px solid rgba(34,197,94,0.25);
+  }
+  .feedback.wrong {
+    background: rgba(239,68,68,0.08);
+    border: 1px solid rgba(239,68,68,0.25);
+  }
+  .feedback strong {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .feedback.correct strong { color: var(--green); }
+  .feedback.wrong strong { color: var(--red); }
+  .feedback em {
+    font-style: normal;
+    color: var(--muted);
+    font-size: 12.5px;
+    line-height: 1.55;
+    display: block;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--line);
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* BOTTOM CONTROLS */
+  .controls {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 480px;
+    background: rgba(15,17,21,0.94);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-top: 1px solid var(--line);
+    padding: 12px 14px calc(12px + env(safe-area-inset-bottom));
+    display: flex;
+    gap: 8px;
+    z-index: 20;
+  }
+  button {
+    font-family: inherit;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.15s ease;
+  }
+  button:active:not(:disabled) { transform: scale(0.96); }
+  button:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  .btn-icon {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    color: var(--text);
+    font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .btn-next {
+    flex: 1;
+    height: 44px;
+    border-radius: 12px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 14px;
+    padding: 0 12px;
+  }
+  .btn-next.ready {
+    background: linear-gradient(135deg, var(--green), var(--green-dark));
+    border-color: transparent;
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(34,197,94,0.35);
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 4px 14px rgba(34,197,94,0.35); }
+    50% { box-shadow: 0 4px 22px rgba(34,197,94,0.6); }
+  }
+
+  /* DRAWER */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(2px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+    z-index: 30;
+  }
+  .overlay.show { opacity: 1; pointer-events: auto; }
+
+  .drawer {
+    position: fixed;
+    top: 0; left: 0;
+    width: 82%;
+    max-width: 340px;
+    height: 100dvh;
+    background: var(--card);
+    border-right: 1px solid var(--line);
+    transform: translateX(-100%);
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 40;
+    display: flex;
+    flex-direction: column;
+  }
+  .drawer.show { transform: translateX(0); }
+
+  .drawer-head {
+    padding: 18px 18px 14px;
+    border-bottom: 1px solid var(--line);
+  }
+  .drawer-head h2 { font-size: 15px; font-weight: 700; margin-bottom: 3px; }
+  .drawer-head p { font-size: 11.5px; color: var(--muted); }
+
+  .legend {
+    display: flex;
+    gap: 12px;
+    padding: 12px 18px;
+    font-size: 11px;
+    color: var(--muted);
+    border-bottom: 1px solid var(--line);
+    flex-wrap: wrap;
+  }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .dot { width: 9px; height: 9px; border-radius: 3px; display: inline-block; }
+  .dot.d-answered { background: var(--accent); }
+  .dot.d-correct { background: var(--green); }
+  .dot.d-wrong { background: var(--red); }
+  .dot.d-empty { background: var(--card-2); border: 1px solid var(--line); }
+
+  .grid-nav {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px 16px 20px;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    align-content: start;
+  }
+  .grid-nav button {
+    aspect-ratio: 1;
+    border-radius: 10px;
+    background: var(--card-2);
+    border: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .grid-nav button.answered {
+    background: rgba(99,102,241,0.18);
+    border-color: rgba(99,102,241,0.4);
+    color: #a5b4fc;
+  }
+  .grid-nav button.correct {
+    background: rgba(34,197,94,0.18);
+    border-color: rgba(34,197,94,0.4);
+    color: #4ade80;
+  }
+  .grid-nav button.wrong {
+    background: rgba(239,68,68,0.18);
+    border-color: rgba(239,68,68,0.4);
+    color: #f87171;
+  }
+  .grid-nav button.current {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+    color: var(--text);
+  }
+
+  .drawer-foot {
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--line);
+    display: flex;
+    gap: 8px;
+  }
+  .btn-reset-sm {
+    flex: 1;
+    height: 40px;
+    border-radius: 10px;
+    background: rgba(239,68,68,0.12);
+    border: 1px solid rgba(239,68,68,0.3);
+    color: #f87171;
+    font-size: 12.5px;
+  }
+
+  /* SUMMARY */
+  .summary {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    padding: 20px;
+  }
+  .summary.show { display: flex; }
+  .summary-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 28px 22px;
+    max-width: 340px;
+    width: 100%;
+    text-align: center;
+    animation: pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes pop {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  .summary-card h2 { font-size: 18px; margin-bottom: 10px; }
+  .score-big {
+    font-size: 44px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 10px 0;
+    letter-spacing: -1px;
+  }
+  .summary-card p {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+  .btn-primary-full {
+    width: 100%;
+    height: 46px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #fff;
+    font-size: 14px;
+  }
+
+  /* JUMPSCARE */
+  .jumpscare {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    overflow: hidden;
+  }
+  .jumpscare.show {
+    display: flex;
+    /* ✅ FLICKER SAHAJA — buang 'shake' */
+    animation: creepypastaStrobe 0.04s infinite;
+  }
+  .jumpscare img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    animation: imageFlicker 0.06s infinite;
+  }
+  
+  /* CREEPYPASTA FLICKER ANIMATIONS */
+  @keyframes creepypastaStrobe {
+    0% { background-color: #000; }
+    50% { background-color: #fff; }
+    100% { background-color: #000; }
+  }
+  @keyframes imageFlicker {
+    0% { opacity: 1; filter: invert(0) contrast(1); }
+    20% { opacity: 0.1; filter: invert(0.8) contrast(2); }
+    40% { opacity: 0.9; filter: invert(0) hue-rotate(90deg); }
+    60% { opacity: 0.2; filter: invert(1) contrast(3); }
+    80% { opacity: 1; filter: invert(0) saturate(2); }
+    100% { opacity: 0.3; filter: invert(0.5); }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <button class="menu-btn" onclick="openDrawer()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="title-block">
+      <h1>Kuiz Sejarah SPM</h1>
+      <p id="subtitle">Tingkatan 4 & 5 · 100 soalan</p>
+    </div>
+    <div class="score-pill" id="scorePill">0/100</div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-wrap">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-meta">
+      <span id="progressLabel">0 dijawab</span>
+      <span id="progressPct">0%</span>
+    </div>
+  </div>
+
+  <!-- QUIZ BODY -->
+  <div class="quiz-body" id="quizBody">
+    <div class="q-meta">
+      <span class="q-number" id="qNumber">Soalan 1 / 100</span>
+      <span class="q-bab" id="qBab">T4 Bab 1</span>
+    </div>
+    <div class="q-text" id="qText">Memuatkan...</div>
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback"></div>
+  </div>
+
+  <!-- BOTTOM CONTROLS -->
+  <div class="controls">
+    <button class="btn-icon" id="btnPrev" onclick="prevQ()" aria-label="Sebelum">←</button>
+    <button class="btn-next" id="btnNext" onclick="nextQ()">Pilih jawapan dahulu</button>
+  </div>
+
+  <!-- OVERLAY -->
+  <div class="overlay" id="overlay" onclick="closeDrawer()"></div>
+
+  <!-- DRAWER -->
+  <aside class="drawer" id="drawer">
+    <div class="drawer-head">
+      <h2>Pilih Soalan</h2>
+      <p>Lompat ke mana-mana soalan</p>
+    </div>
+    <div class="legend">
+      <span><i class="dot d-empty"></i>Belum</span>
+      <span><i class="dot d-correct"></i>Betul</span>
+      <span><i class="dot d-wrong"></i>Salah</span>
+    </div>
+    <div class="grid-nav" id="gridNav"></div>
+    <div class="drawer-foot">
+      <button class="btn-reset-sm" onclick="resetQuiz()">Reset Semua</button>
+    </div>
+  </aside>
+
+  <!-- SUMMARY -->
+  <div class="summary" id="summary">
+    <div class="summary-card">
+      <h2>🎉 Kuiz Selesai!</h2>
+      <div class="score-big" id="finalScore">0 / 100</div>
+      <p id="finalMsg"></p>
+      <button class="btn-primary-full" onclick="closeSummary(); resetQuiz();">Mula Semula</button>
+    </div>
+  </div>
+
+  <!-- JUMPSCARE OVERLAY -->
+  <div class="jumpscare" id="jumpscare">
+    <img src="jumpscare.jpg" alt="">
+  </div>
+
+  <!-- AUDIO (hidden) -->
+  <audio id="screamAudio" src="scream.mp3" preload="auto" loop></audio>
+
+</div>
+
+<script>
+// ============ BANK SOALAN (100 soalan) ============
+const QUESTIONS = [
+  {t:4, bab:"T4 Bab 1", q:"Apakah maksud 'negara bangsa' dalam konteks sejarah awal Asia Tenggara?",
+   o:["Negara yang diperintah oleh raja asing","Negara yang mempunyai sempadan, rakyat dan kedaulatan","Negara yang dijajah oleh kuasa Barat","Negara yang tidak mempunyai sistem pemerintahan"], a:1,
+   e:"Negara bangsa merujuk kepada negara yang mempunyai sempadan yang jelas, rakyat yang taat setia dan kedaulatan yang diiktiraf."},
+  {t:4, bab:"T4 Bab 1", q:"Apakah ciri utama kerajaan agraria di Asia Tenggara?",
+   o:["Bergantung pada perdagangan maritim","Bergantung pada pertanian dan hasil bumi","Bergantung pada perlombongan bijih timah","Bergantung pada industri pembuatan"], a:1,
+   e:"Kerajaan agraria seperti Angkor dan Funan bergantung pada pertanian, terutamanya penanaman padi."},
+  {t:4, bab:"T4 Bab 1", q:"Kerajaan Srivijaya merupakan kerajaan maritim yang berpusat di manakah?",
+   o:["Palembang, Sumatera","Angkor, Kemboja","Pagoh, Johor","Ayutthaya, Siam"], a:0,
+   e:"Srivijaya berpusat di Palembang, Sumatera dan menjadi pusat perdagangan maritim utama."},
+  {t:4, bab:"T4 Bab 1", q:"Apakah kepentingan Sungai Mekong kepada kerajaan Funan?",
+   o:["Sebagai sempadan semula jadi","Sebagai laluan perdagangan dan sumber air","Sebagai tempat perlindungan","Sebagai kawasan perlombongan"], a:1,
+   e:"Sungai Mekong menjadi nadi ekonomi Funan kerana menyediakan air, tanah subur dan laluan perdagangan."},
+  {t:4, bab:"T4 Bab 1", q:"Bahasa Melayu Kuno digunakan dalam kerajaan Srivijaya sebagai bahasa apa?",
+   o:["Bahasa rasmi pentadbiran","Bahasa perdagangan","Bahasa keagamaan","Bahasa tentera"], a:0,
+   e:"Bahasa Melayu Kuno digunakan sebagai bahasa rasmi dalam pentadbiran Srivijaya."},
+  {t:4, bab:"T4 Bab 2", q:"Siapakah yang mengasaskan Kesultanan Melayu Melaka?",
+   o:["Sultan Alauddin Riayat Shah","Parameswara","Sultan Mansur Shah","Raja Iskandar Shah"], a:1,
+   e:"Parameswara (Raja Iskandar Shah) mengasaskan Melaka sekitar tahun 1400."},
+  {t:4, bab:"T4 Bab 2", q:"Apakah faktor utama yang menjadikan Melaka pusat perdagangan antarabangsa?",
+   o:["Kedudukan strategik di Selat Melaka","Kawasan pertanian yang luas","Penduduk yang ramai","Kekayaan hasil laut"], a:0,
+   e:"Kedudukan Melaka di tengah Selat Melaka menjadikannya persinggahan utama kapal dagang."},
+  {t:4, bab:"T4 Bab 2", q:"Apakah maksud 'Sistem Pembesar Empat Lipatan' dalam pentadbiran Melaka?",
+   o:["Sistem pemilihan sultan","Sistem pembahagian kuasa pembesar mengikut hierarki","Sistem cukai perdagangan","Sistem ketenteraan"], a:1,
+   e:"Sistem ini membahagikan pembesar kepada empat peringkat: Bendahara, Penghulu Bendahari, Temenggung dan Laksamana."},
+  {t:4, bab:"T4 Bab 2", q:"Apakah tugas utama Bendahara dalam pentadbiran Melaka?",
+   o:["Mengetuai angkatan tentera","Menjaga hasil cukai","Mengetuai pentadbiran dan menjadi penasihat sultan","Mengurus hal ehwal pelabuhan"], a:2,
+   e:"Bendahara adalah pembesar tertinggi, mengetuai pentadbiran dan menjadi penasihat utama sultan."},
+  {t:4, bab:"T4 Bab 2", q:"Apakah undang-undang yang digunakan dalam Kesultanan Melayu Melaka?",
+   o:["Hukum Kanun Melaka dan Undang-Undang Laut Melaka","Undang-Undang Inggeris","Hukum Kanun Johor","Undang-Undang Siam"], a:0,
+   e:"Hukum Kanun Melaka dan Undang-Undang Laut Melaka adalah dua undang-undang utama Melaka."},
+  {t:4, bab:"T4 Bab 2", q:"Apakah kepentingan Hukum Kanun Melaka?",
+   o:["Mengatur perdagangan antarabangsa","Menjadi panduan pentadbiran dan keadilan","Mengatur hubungan diplomatik","Mengatur sistem pendidikan"], a:1,
+   e:"Hukum Kanun Melaka menjadi panduan dalam pentadbiran negara dan pelaksanaan keadilan."},
+  {t:4, bab:"T4 Bab 2", q:"Apakah maksud 'waadat' dalam konteks hubungan Sultan Melaka dengan rakyat?",
+   o:["Perjanjian perdagangan","Ikrar taat setia rakyat kepada sultan","Perjanjian damai","Sistem cukai"], a:1,
+   e:"Waadat ialah ikrar taat setia rakyat kepada sultan sebagai lambang kedaulatan."},
+  {t:4, bab:"T4 Bab 3", q:"Apakah kerajaan Alam Melayu yang tertua?",
+   o:["Kedah Tua","Melaka","Srivijaya","Majapahit"], a:0,
+   e:"Kedah Tua (Kataha) dianggap antara kerajaan Alam Melayu tertua, wujud sejak abad ke-2 Masihi."},
+  {t:4, bab:"T4 Bab 3", q:"Apakah pengaruh utama dalam kerajaan Majapahit?",
+   o:["Islam","Hindu-Buddha","Kristian","Animisme"], a:1,
+   e:"Majapahit adalah kerajaan Hindu-Buddha yang berpusat di Jawa Timur."},
+  {t:4, bab:"T4 Bab 3", q:"Siapakah Patih Gajah Mada?",
+   o:["Raja Majapahit","Panglima perang Srivijaya","Mahapatih Majapahit yang terkenal","Raja Kedah Tua"], a:2,
+   e:"Patih Gajah Mada ialah Mahapatih Majapahit yang terkenal dengan Sumpah Palapa."},
+  {t:4, bab:"T4 Bab 3", q:"Apakah kepentingan Selat Melaka kepada kerajaan Alam Melayu?",
+   o:["Sebagai kawasan pertanian","Sebagai laluan perdagangan utama","Sebagai sempadan politik","Sebagai tempat perlindungan"], a:1,
+   e:"Selat Melaka menjadi laluan perdagangan utama yang menghubungkan Timur dan Barat."},
+  {t:4, bab:"T4 Bab 3", q:"Apakah bukti hubungan kerajaan Alam Melayu dengan China?",
+   o:["Penemuan tembikar dan catatan sejarah","Penemuan senjata moden","Penemuan bangunan moden","Penemuan kenderaan"], a:0,
+   e:"Penemuan tembikar China dan catatan sejarah membuktikan hubungan diplomatik dan perdagangan."},
+  {t:4, bab:"T4 Bab 4", q:"Apakah agama yang dibawa oleh pedagang India ke Alam Melayu?",
+   o:["Islam","Hindu dan Buddha","Kristian","Sikh"], a:1,
+   e:"Pedagang India membawa pengaruh Hindu dan Buddha ke Alam Melayu."},
+  {t:4, bab:"T4 Bab 4", q:"Apakah kesan kedatangan Islam terhadap bahasa Melayu?",
+   o:["Bahasa Melayu hilang","Bahasa Melayu berkembang dengan tulisan Jawi","Bahasa Melayu menjadi bahasa Inggeris","Bahasa Melayu tidak berubah"], a:1,
+   e:"Kedatangan Islam memperkembangkan bahasa Melayu dengan tulisan Jawi dan kosa kata Arab."},
+  {t:4, bab:"T4 Bab 4", q:"Siapakah yang menyebarkan Islam di Melaka?",
+   o:["Pedagang Arab, India dan China","Tentera Portugis","Paderi Kristian","Pegawai British"], a:0,
+   e:"Islam disebarkan oleh pedagang Arab, India dan China yang singgah di Melaka."},
+  {t:4, bab:"T4 Bab 4", q:"Apakah kesan kedatangan Islam terhadap sistem pemerintahan Melayu?",
+   o:["Sistem pemerintahan Hindu kekal","Sultan menjadi ketua agama dan negara","Sistem republik diperkenalkan","Sistem feudal dihapuskan"], a:1,
+   e:"Islam menjadikan sultan sebagai ketua agama dan negara, menggabungkan kuasa politik dan agama."},
+  {t:4, bab:"T4 Bab 4", q:"Apakah maksud 'syariah' dalam konteks kedatangan Islam?",
+   o:["Undang-undang perdagangan","Hukum Islam yang menjadi panduan hidup","Sistem cukai","Sistem pendidikan"], a:1,
+   e:"Syariah ialah hukum Islam yang menjadi panduan hidup umat Islam."},
+  {t:4, bab:"T4 Bab 4", q:"Apakah kesan kedatangan Islam terhadap seni bina di Alam Melayu?",
+   o:["Pembinaan masjid dan madrasah","Pembinaan kuil Hindu","Pembinaan istana Roman","Pembinaan menara Eiffel"], a:0,
+   e:"Kedatangan Islam membawa seni bina masjid dan madrasah ke Alam Melayu."},
+  {t:4, bab:"T4 Bab 5", q:"Apakah tamadun yang menyumbang kepada sistem pendidikan di Alam Melayu?",
+   o:["Tamadun China dan India","Tamadun Mesir","Tamadun Rom","Tamadun Yunani"], a:0,
+   e:"Tamadun China dan India menyumbang kepada sistem pendidikan dan kesusasteraan di Alam Melayu."},
+  {t:4, bab:"T4 Bab 5", q:"Apakah sumbangan Tamadun China kepada Alam Melayu?",
+   o:["Teknologi percetakan dan tembikar","Sistem pemerintahan republik","Bahasa Latin","Agama Kristian"], a:0,
+   e:"Tamadun China menyumbang teknologi percetakan, tembikar dan kertas."},
+  {t:4, bab:"T4 Bab 5", q:"Apakah sumbangan Tamadun India kepada Alam Melayu?",
+   o:["Epik Ramayana dan Mahabharata","Sistem demokrasi","Teknologi nuklear","Bahasa Inggeris"], a:0,
+   e:"Epik Ramayana dan Mahabharata mempengaruhi kesusasteraan dan budaya Alam Melayu."},
+  {t:4, bab:"T4 Bab 5", q:"Apakah maksud 'Wayang Kulit' dalam konteks pengaruh India?",
+   o:["Persembahan tradisional yang berasaskan epik Hindu","Permainan moden","Tarian moden","Alat muzik"], a:0,
+   e:"Wayang Kulit ialah persembahan tradisional yang berasaskan epik Hindu seperti Ramayana."},
+  {t:4, bab:"T4 Bab 5", q:"Apakah kesan pengaruh Tamadun China terhadap bahasa Melayu?",
+   o:["Kemasukan kosa kata Cina","Penggunaan tulisan Latin","Penggunaan bahasa Sanskrit","Penggunaan bahasa Arab"], a:0,
+   e:"Pengaruh China membawa kemasukan kosa kata Cina dalam bahasa Melayu."},
+  {t:4, bab:"T4 Bab 6", q:"Apakah maksud 'nasionalisme'?",
+   o:["Perasaan cinta akan negara dan bangsa","Perasaan benci akan negara lain","Sistem pemerintahan kolonial","Sistem perdagangan bebas"], a:0,
+   e:"Nasionalisme ialah perasaan cinta akan negara dan bangsa yang mendorong perjuangan kemerdekaan."},
+  {t:4, bab:"T4 Bab 6", q:"Apakah faktor yang mencetuskan nasionalisme di Asia Tenggara?",
+   o:["Pendidikan dan pengaruh luar","Kekayaan hasil bumi","Peningkatan penduduk","Perubahan cuaca"], a:0,
+   e:"Pendidikan dan pengaruh luar seperti idea kebebasan mencetuskan nasionalisme."},
+  {t:4, bab:"T4 Bab 6", q:"Siapakah yang menubuhkan Kesatuan Melayu Muda (KMM)?",
+   o:["Ibrahim Haji Yaakob","Tunku Abdul Rahman","Dato Onn Jaafar","Tan Cheng Lock"], a:0,
+   e:"Ibrahim Haji Yaakob menubuhkan KMM pada tahun 1938."},
+  {t:4, bab:"T4 Bab 6", q:"Apakah matlamat KMM?",
+   o:["Mencapai kemerdekaan melalui penyatuan Melayu-Indonesia","Bekerjasama dengan British","Menyokong penjajahan Jepun","Menubuhkan kerajaan komunis"], a:0,
+   e:"KMM bertujuan mencapai kemerdekaan melalui penyatuan Melayu-Indonesia."},
+  {t:4, bab:"T4 Bab 6", q:"Apakah peranan akhbar dalam kebangkitan nasionalisme?",
+   o:["Menyebarkan idea kemerdekaan","Menyebarkan berita penjajah","Menghalang perpaduan","Menyokong penjajahan"], a:0,
+   e:"Akhbar seperti Utusan Melayu menyebarkan idea kemerdekaan dan kesedaran politik."},
+  {t:4, bab:"T4 Bab 7", q:"Apakah punca Perang Dunia Pertama?",
+   o:["Pembunuhan Archduke Franz Ferdinand","Perjanjian Versailles","Kemerdekaan Amerika","Revolusi Industri"], a:0,
+   e:"Pembunuhan Archduke Franz Ferdinand di Sarajevo mencetuskan Perang Dunia Pertama."},
+  {t:4, bab:"T4 Bab 7", q:"Apakah kesan Perang Dunia Pertama terhadap Alam Melayu?",
+   o:["Kenaikan harga barang dan kekurangan makanan","Peningkatan perdagangan","Kemerdekaan serta-merta","Pembinaan infrastruktur"], a:0,
+   e:"Perang Dunia Pertama menyebabkan kenaikan harga barang dan kekurangan makanan di Alam Melayu."},
+  {t:4, bab:"T4 Bab 7", q:"Apakah punca Perang Dunia Kedua di Asia Pasifik?",
+   o:["Serangan Jepun ke atas Pearl Harbor","Perjanjian London","Kemerdekaan India","Revolusi China"], a:0,
+   e:"Serangan Jepun ke atas Pearl Harbor pada 1941 mencetuskan Perang Dunia Kedua di Asia Pasifik."},
+  {t:4, bab:"T4 Bab 7", q:"Apakah kesan pendudukan Jepun terhadap Alam Melayu?",
+   o:["Kebangkitan semangat nasionalisme","Peningkatan perdagangan","Kemerdekaan serta-merta","Pembinaan sekolah"], a:0,
+   e:"Pendudukan Jepun membangkitkan semangat nasionalisme kerana kekejaman dan kelemahan British."},
+  {t:4, bab:"T4 Bab 7", q:"Apakah maksud 'Zaman Gelap' dalam konteks pendudukan Jepun?",
+   o:["Zaman kegelapan ekonomi dan sosial","Zaman kemakmuran","Zaman pendidikan","Zaman perdagangan"], a:0,
+   e:"Zaman Gelap merujuk kepada zaman kegelapan ekonomi dan sosial semasa pendudukan Jepun."},
+  {t:4, bab:"T4 Bab 8", q:"Apakah maksud Malayan Union?",
+   o:["Gabungan negeri Melayu di bawah pentadbiran British","Persekutuan Tanah Melayu","Kesatuan Melayu","Pakatan politik"], a:0,
+   e:"Malayan Union ialah gabungan negeri Melayu di bawah pentadbiran British yang diperkenalkan pada 1946."},
+  {t:4, bab:"T4 Bab 8", q:"Apakah ciri utama Malayan Union?",
+   o:["Kewarganegaraan terbuka dan kuasa sultan dikurangkan","Kewarganegaraan tertutup","Kuasa sultan dikekalkan","Pentadbiran tempatan"], a:0,
+   e:"Malayan Union memberi kewarganegaraan terbuka dan mengurangkan kuasa sultan."},
+  {t:4, bab:"T4 Bab 8", q:"Siapakah yang menentang Malayan Union?",
+   o:["Orang Melayu dan sultan","British","Pedagang Cina","Tentera Jepun"], a:0,
+   e:"Orang Melayu dan sultan menentang Malayan Union kerana mengancam kedaulatan Melayu."},
+  {t:4, bab:"T4 Bab 8", q:"Apakah kesan penentangan Malayan Union?",
+   o:["Penubuhan UMNO","Penubuhan PKM","Penubuhan MIC","Penubuhan DAP"], a:0,
+   e:"Penentangan Malayan Union membawa kepada penubuhan UMNO pada 1946."},
+  {t:4, bab:"T4 Bab 9", q:"Apakah maksud Persekutuan Tanah Melayu 1948?",
+   o:["Gabungan negeri Melayu dengan kuasa sultan dikekalkan","Gabungan negeri Melayu tanpa sultan","Gabungan negeri Melayu dengan British","Gabungan negeri Melayu dengan Indonesia"], a:0,
+   e:"PTM 1948 mengekalkan kuasa sultan dan memberi kewarganegaraan yang lebih ketat."},
+  {t:4, bab:"T4 Bab 9", q:"Apakah ciri utama PTM 1948?",
+   o:["Kuasa sultan dikekalkan dan kewarganegaraan diperketat","Kewarganegaraan terbuka","Sultan dihapuskan","Pentadbiran British sepenuhnya"], a:0,
+   e:"PTM 1948 mengekalkan kuasa sultan dan memperketat syarat kewarganegaraan."},
+  {t:4, bab:"T4 Bab 9", q:"Apakah peranan Majlis Perundangan Persekutuan dalam PTM 1948?",
+   o:["Membuat undang-undang","Menjalankan hukuman","Mengutip cukai","Mengurus tentera"], a:0,
+   e:"Majlis Perundangan Persekutuan bertanggungjawab membuat undang-undang."},
+  {t:4, bab:"T4 Bab 9", q:"Apakah kesan PTM 1948 terhadap perpaduan kaum?",
+   o:["Meningkatkan kerjasama politik","Mengurangkan kerjasama","Menghapuskan perpaduan","Mencipta konflik"], a:0,
+   e:"PTM 1948 membuka ruang kerjasama politik antara kaum melalui perwakilan dalam majlis."},
+  {t:4, bab:"T4 Bab 10", q:"Apakah maksud 'demokrasi' dalam konteks pemerintahan?",
+   o:["Pemerintahan oleh rakyat","Pemerintahan oleh raja","Pemerintahan oleh tentera","Pemerintahan oleh penjajah"], a:0,
+   e:"Demokrasi ialah pemerintahan oleh rakyat melalui perwakilan yang dipilih."},
+  {t:4, bab:"T4 Bab 10", q:"Apakah peranan pilihan raya dalam sistem demokrasi?",
+   o:["Memilih wakil rakyat","Memilih raja","Memilih penjajah","Memilih tentera"], a:0,
+   e:"Pilihan raya membolehkan rakyat memilih wakil untuk membentuk kerajaan."},
+  {t:4, bab:"T4 Bab 10", q:"Apakah maksud 'kedaulatan'?",
+   o:["Kuasa tertinggi sesebuah negara","Kuasa penjajah","Kuasa raja","Kuasa tentera"], a:0,
+   e:"Kedaulatan ialah kuasa tertinggi sesebuah negara yang bebas daripada campur tangan luar."},
+  {t:4, bab:"T4 Bab 10", q:"Apakah kepentingan perlembagaan kepada sesebuah negara?",
+   o:["Menjadi panduan pemerintahan","Menjadi alat penjajahan","Menjadi alat perdagangan","Menjadi alat ketenteraan"], a:0,
+   e:"Perlembagaan menjadi panduan pemerintahan dan melindungi hak rakyat."},
+  {t:4, bab:"T4 Bab 10", q:"Apakah maksud 'Raja Berperlembagaan'?",
+   o:["Raja yang memerintah mengikut perlembagaan","Raja yang memerintah secara mutlak","Raja yang dipilih rakyat","Raja yang mengetuai tentera"], a:0,
+   e:"Raja Berperlembagaan ialah raja yang memerintah mengikut peruntukan perlembagaan."},
+
+  {t:5, bab:"T5 Bab 1", q:"Apakah maksud kedaulatan negara?",
+   o:["Kuasa tertinggi negara yang bebas daripada campur tangan luar","Kuasa penjajah","Kuasa raja","Kuasa tentera"], a:0,
+   e:"Kedaulatan negara ialah kuasa tertinggi yang bebas daripada campur tangan kuasa luar."},
+  {t:5, bab:"T5 Bab 1", q:"Apakah ciri negara berdaulat?",
+   o:["Mempunyai sempadan, rakyat dan kerajaan","Mempunyai tentera sahaja","Mempunyai raja sahaja","Mempunyai perdagangan sahaja"], a:0,
+   e:"Negara berdaulat mempunyai sempadan yang jelas, rakyat dan kerajaan yang sah."},
+  {t:5, bab:"T5 Bab 1", q:"Apakah kepentingan kedaulatan kepada Malaysia?",
+   o:["Menjamin kebebasan dan keselamatan negara","Menjamin perdagangan","Menjamin pendidikan","Menjamin kesihatan"], a:0,
+   e:"Kedaulatan menjamin kebebasan, keselamatan dan kestabilan negara."},
+  {t:5, bab:"T5 Bab 1", q:"Apakah ancaman kepada kedaulatan negara?",
+   o:["Ancaman luar dan dalam","Ancaman cuaca","Ancaman ekonomi","Ancaman pendidikan"], a:0,
+   e:"Ancaman kepada kedaulatan boleh datang dari luar seperti pencerobohan dan dari dalam seperti subversif."},
+  {t:5, bab:"T5 Bab 1", q:"Apakah peranan rakyat dalam mempertahankan kedaulatan?",
+   o:["Taat setia dan patuh kepada undang-undang","Menentang kerajaan","Membantu penjajah","Mengabaikan negara"], a:0,
+   e:"Rakyat mempertahankan kedaulatan dengan taat setia dan patuh kepada undang-undang."},
+  {t:5, bab:"T5 Bab 2", q:"Apakah maksud perlembagaan?",
+   o:["Undang-undang tertinggi sesebuah negara","Undang-undang biasa","Undang-undang tentera","Undang-undang adat"], a:0,
+   e:"Perlembagaan ialah undang-undang tertinggi yang menjadi asas pemerintahan negara."},
+  {t:5, bab:"T5 Bab 2", q:"Apakah peranan Perlembagaan Persekutuan?",
+   o:["Menjadi panduan pemerintahan dan melindungi hak rakyat","Menjadi alat penjajahan","Menjadi alat perdagangan","Menjadi alat ketenteraan"], a:0,
+   e:"Perlembagaan Persekutuan menjadi panduan pemerintahan dan melindungi hak rakyat."},
+  {t:5, bab:"T5 Bab 2", q:"Apakah maksud 'keluhuran perlembagaan'?",
+   o:["Perlembagaan adalah undang-undang tertinggi","Perlembagaan adalah undang-undang biasa","Perlembagaan boleh diubah sesuka hati","Perlembagaan tidak penting"], a:0,
+   e:"Keluhuran perlembagaan bermaksud perlembagaan adalah undang-undang tertinggi negara."},
+  {t:5, bab:"T5 Bab 2", q:"Apakah kepentingan perlembagaan kepada rakyat?",
+   o:["Melindungi hak asasi rakyat","Mengekang kebebasan rakyat","Menghapuskan hak rakyat","Mengabaikan rakyat"], a:0,
+   e:"Perlembagaan melindungi hak asasi rakyat dan menjamin keadilan."},
+  {t:5, bab:"T5 Bab 2", q:"Apakah maksud 'hak asasi manusia'?",
+   o:["Hak yang dimiliki oleh setiap manusia","Hak yang dimiliki oleh raja","Hak yang dimiliki oleh tentera","Hak yang dimiliki oleh penjajah"], a:0,
+   e:"Hak asasi manusia ialah hak yang dimiliki oleh setiap manusia tanpa diskriminasi."},
+  {t:5, bab:"T5 Bab 3", q:"Apakah maksud demokrasi berparlimen?",
+   o:["Sistem pemerintahan yang melibatkan parlimen dan rakyat","Sistem pemerintahan raja mutlak","Sistem pemerintahan tentera","Sistem pemerintahan penjajah"], a:0,
+   e:"Demokrasi berparlimen melibatkan parlimen sebagai badan perundangan dan rakyat memilih wakil."},
+  {t:5, bab:"T5 Bab 3", q:"Apakah peranan parlimen dalam demokrasi?",
+   o:["Membuat undang-undang","Menjalankan hukuman","Mengutip cukai","Mengurus tentera"], a:0,
+   e:"Parlimen bertanggungjawab membuat undang-undang dan mengawal kerajaan."},
+  {t:5, bab:"T5 Bab 3", q:"Apakah maksud 'pilihan raya umum'?",
+   o:["Proses memilih wakil rakyat","Proses memilih raja","Proses memilih penjajah","Proses memilih tentera"], a:0,
+   e:"Pilihan raya umum ialah proses memilih wakil rakyat untuk membentuk kerajaan."},
+  {t:5, bab:"T5 Bab 3", q:"Apakah syarat menjadi pengundi di Malaysia?",
+   o:["Warganegara Malaysia berumur 18 tahun ke atas","Warganegara asing","Berumur 21 tahun ke atas","Tinggal di Malaysia 10 tahun"], a:0,
+   e:"Warganegara Malaysia berumur 18 tahun ke atas layak mengundi."},
+  {t:5, bab:"T5 Bab 3", q:"Apakah peranan Suruhanjaya Pilihan Raya (SPR)?",
+   o:["Menjalankan pilihan raya secara adil","Membuat undang-undang","Menjalankan hukuman","Mengutip cukai"], a:0,
+   e:"SPR bertanggungjawab menjalankan pilihan raya secara bebas dan adil."},
+  {t:5, bab:"T5 Bab 4", q:"Apakah maksud pembentukan Malaysia?",
+   o:["Gabungan Sabah, Sarawak, Singapura dan Tanah Melayu","Gabungan negeri Melayu","Gabungan negeri Borneo","Gabungan negeri Indonesia"], a:0,
+   e:"Pembentukan Malaysia melibatkan gabungan Sabah, Sarawak, Singapura dan Tanah Melayu pada 1963."},
+  {t:5, bab:"T5 Bab 4", q:"Apakah faktor pembentukan Malaysia?",
+   o:["Keselamatan dan kestabilan politik","Perdagangan","Pendidikan","Kesihatan"], a:0,
+   e:"Faktor utama termasuk keselamatan, kestabilan politik dan kemajuan ekonomi."},
+  {t:5, bab:"T5 Bab 4", q:"Siapakah yang mencadangkan pembentukan Malaysia?",
+   o:["Tunku Abdul Rahman","Dato Onn Jaafar","Tan Cheng Lock","Ibrahim Haji Yaakob"], a:0,
+   e:"Tunku Abdul Rahman mencadangkan pembentukan Malaysia pada 1961."},
+  {t:5, bab:"T5 Bab 4", q:"Apakah peranan Suruhanjaya Cobbold?",
+   o:["Mengkaji pendapat rakyat Sabah dan Sarawak","Membuat undang-undang","Menjalankan pilihan raya","Mengutip cukai"], a:0,
+   e:"Suruhanjaya Cobbold mengkaji pendapat rakyat Sabah dan Sarawak tentang pembentukan Malaysia."},
+  {t:5, bab:"T5 Bab 4", q:"Apakah kesan pembentukan Malaysia?",
+   o:["Kemerdekaan dan kestabilan serantau","Penjajahan","Peperangan","Kemiskinan"], a:0,
+   e:"Pembentukan Malaysia membawa kemerdekaan dan kestabilan serantau."},
+  {t:5, bab:"T5 Bab 5", q:"Apakah maksud dasar luar Malaysia?",
+   o:["Hubungan Malaysia dengan negara lain","Dasar dalam negeri","Dasar ekonomi","Dasar pendidikan"], a:0,
+   e:"Dasar luar Malaysia ialah hubungan diplomatik dan kerjasama dengan negara lain."},
+  {t:5, bab:"T5 Bab 5", q:"Apakah prinsip utama dasar luar Malaysia?",
+   o:["Hidup bersama secara aman dan tidak campur tangan","Penjajahan","Peperangan","Pengasingan"], a:0,
+   e:"Prinsip utama termasuk hidup bersama secara aman dan tidak campur tangan urusan negara lain."},
+  {t:5, bab:"T5 Bab 5", q:"Apakah peranan ASEAN kepada Malaysia?",
+   o:["Kerjasama serantau dan kestabilan","Penjajahan","Peperangan","Pengasingan"], a:0,
+   e:"ASEAN membolehkan Malaysia bekerjasama dalam ekonomi, politik dan keselamatan serantau."},
+  {t:5, bab:"T5 Bab 5", q:"Apakah maksud 'ZOPFAN'?",
+   o:["Zon Aman, Bebas dan Neutral","Zon Perdagangan Bebas","Zon Pendidikan","Zon Ketenteraan"], a:0,
+   e:"ZOPFAN ialah Zon Aman, Bebas dan Neutral di Asia Tenggara."},
+  {t:5, bab:"T5 Bab 5", q:"Apakah peranan Malaysia dalam PBB?",
+   o:["Menyertai misi keamanan","Menjajah negara lain","Berkembang biak","Mengasingkan diri"], a:0,
+   e:"Malaysia menyertai misi keamanan PBB dan menyokong kerjasama antarabangsa."},
+  {t:5, bab:"T5 Bab 6", q:"Apakah maksud perpaduan kaum?",
+   o:["Kerjasama dan keharmonian antara kaum","Peperangan antara kaum","Pengasingan kaum","Diskriminasi kaum"], a:0,
+   e:"Perpaduan kaum ialah kerjasama dan keharmonian antara pelbagai kaum."},
+  {t:5, bab:"T5 Bab 6", q:"Apakah kepentingan perpaduan kaum?",
+   o:["Kestabilan dan kemajuan negara","Peperangan","Kemiskinan","Pengasingan"], a:0,
+   e:"Perpaduan kaum menjamin kestabilan dan kemajuan negara."},
+  {t:5, bab:"T5 Bab 6", q:"Apakah peranan pendidikan dalam perpaduan?",
+   o:["Membentuk sikap toleransi dan hormat","Mengasingkan kaum","Mencipta konflik","Mengabaikan perpaduan"], a:0,
+   e:"Pendidikan membentuk sikap toleransi dan hormat antara kaum."},
+  {t:5, bab:"T5 Bab 6", q:"Apakah maksud 'Rukun Negara'?",
+   o:["Falsafah negara untuk perpaduan","Undang-undang negara","Dasar ekonomi","Dasar pendidikan"], a:0,
+   e:"Rukun Negara ialah falsafah negara yang menjadi panduan perpaduan rakyat."},
+  {t:5, bab:"T5 Bab 6", q:"Apakah peranan media dalam perpaduan?",
+   o:["Menyebarkan mesej perpaduan","Menyebarkan berita palsu","Mencipta konflik","Mengabaikan perpaduan"], a:0,
+   e:"Media memainkan peranan menyebarkan mesej perpaduan dan kefahaman antara kaum."},
+  {t:5, bab:"T5 Bab 7", q:"Apakah maksud 'Wawasan 2020'?",
+   o:["Wawasan menjadikan Malaysia negara maju","Wawasan menjadikan Malaysia negara penjajah","Wawasan menjadikan Malaysia negara mundur","Wawasan menjadikan Malaysia negara komunis"], a:0,
+   e:"Wawasan 2020 bertujuan menjadikan Malaysia negara maju menjelang 2020."},
+  {t:5, bab:"T5 Bab 7", q:"Apakah peranan ekonomi dalam pembangunan negara?",
+   o:["Meningkatkan taraf hidup rakyat","Mengurangkan pendapatan","Mencipta kemiskinan","Mengabaikan rakyat"], a:0,
+   e:"Pembangunan ekonomi meningkatkan taraf hidup rakyat dan kemakmuran negara."},
+  {t:5, bab:"T5 Bab 7", q:"Apakah maksud 'Dasar Ekonomi Baru' (DEB)?",
+   o:["Dasar untuk menghapuskan kemiskinan dan menyusun semula masyarakat","Dasar untuk mengekalkan kemiskinan","Dasar untuk mengasingkan kaum","Dasar untuk menjajah"], a:0,
+   e:"DEB bertujuan menghapuskan kemiskinan dan menyusun semula masyarakat mengikut kaum."},
+  {t:5, bab:"T5 Bab 7", q:"Apakah peranan teknologi dalam pembangunan negara?",
+   o:["Meningkatkan produktiviti dan inovasi","Mengurangkan produktiviti","Mencipta kemunduran","Mengabaikan pembangunan"], a:0,
+   e:"Teknologi meningkatkan produktiviti, inovasi dan daya saing negara."},
+  {t:5, bab:"T5 Bab 7", q:"Apakah maksud 'masyarakat madani'?",
+   o:["Masyarakat yang berilmu dan bermoral","Masyarakat yang mundur","Masyarakat yang berpecah","Masyarakat yang miskin"], a:0,
+   e:"Masyarakat madani ialah masyarakat yang berilmu, bermoral dan berdaya saing."},
+  {t:5, bab:"T5 Bab 8", q:"Apakah maksud 'globalisasi'?",
+   o:["Proses interaksi dan integrasi antarabangsa","Proses pengasingan negara","Proses peperangan","Proses penjajahan"], a:0,
+   e:"Globalisasi ialah proses interaksi dan integrasi antara negara dalam pelbagai bidang."},
+  {t:5, bab:"T5 Bab 8", q:"Apakah kesan globalisasi terhadap Malaysia?",
+   o:["Peluang dan cabaran dalam ekonomi","Kemunduran","Pengasingan","Peperangan"], a:0,
+   e:"Globalisasi membawa peluang dan cabaran dalam ekonomi, teknologi dan budaya."},
+  {t:5, bab:"T5 Bab 8", q:"Apakah peranan Malaysia dalam globalisasi?",
+   o:["Menyertai kerjasama antarabangsa","Mengasingkan diri","Menjajah negara lain","Berkembang biak"], a:0,
+   e:"Malaysia menyertai kerjasama antarabangsa seperti WTO dan APEC."},
+  {t:5, bab:"T5 Bab 8", q:"Apakah cabaran globalisasi kepada Malaysia?",
+   o:["Persaingan ekonomi dan budaya","Kemakmuran","Kestabilan","Kemajuan"], a:0,
+   e:"Cabaran globalisasi termasuk persaingan ekonomi dan pengaruh budaya asing."},
+  {t:5, bab:"T5 Bab 8", q:"Apakah maksud 'literasi digital'?",
+   o:["Kemampuan menggunakan teknologi digital","Kemampuan membaca","Kemampuan menulis","Kemampuan berhitung"], a:0,
+   e:"Literasi digital ialah kemampuan menggunakan teknologi digital secara berkesan."},
+  {t:5, bab:"T5 Bab 9", q:"Apakah maksud 'integrasi nasional'?",
+   o:["Penyatuan pelbagai kaum dan wilayah","Pengasingan kaum","Peperangan","Penjajahan"], a:0,
+   e:"Integrasi nasional ialah penyatuan pelbagai kaum dan wilayah dalam satu negara."},
+  {t:5, bab:"T5 Bab 9", q:"Apakah peranan bahasa kebangsaan dalam integrasi?",
+   o:["Alat perpaduan dan komunikasi","Alat pengasingan","Alat peperangan","Alat penjajahan"], a:0,
+   e:"Bahasa kebangsaan menjadi alat perpaduan dan komunikasi antara kaum."},
+  {t:5, bab:"T5 Bab 9", q:"Apakah peranan sukan dalam integrasi?",
+   o:["Mengeratkan hubungan antara kaum","Mengasingkan kaum","Mencipta konflik","Mengabaikan perpaduan"], a:0,
+   e:"Sukan mengeratkan hubungan antara kaum melalui kerjasama dan semangat kesukanan."},
+  {t:5, bab:"T5 Bab 9", q:"Apakah maksud '1Malaysia'?",
+   o:["Gagasan perpaduan rakyat","Gagasan penjajahan","Gagasan peperangan","Gagasan pengasingan"], a:0,
+   e:"1Malaysia ialah gagasan perpaduan rakyat pelbagai kaum."},
+  {t:5, bab:"T5 Bab 9", q:"Apakah peranan NGO dalam integrasi?",
+   o:["Menganjurkan program perpaduan","Mencipta konflik","Mengasingkan kaum","Mengabaikan perpaduan"], a:0,
+   e:"NGO menganjurkan program yang mengeratkan hubungan antara kaum."},
+  {t:5, bab:"T5 Bab 10", q:"Apakah maksud 'wawasan negara'?",
+   o:["Matlamat jangka panjang negara","Matlamat jangka pendek","Matlamat peribadi","Matlamat kumpulan"], a:0,
+   e:"Wawasan negara ialah matlamat jangka panjang untuk kemajuan negara."},
+  {t:5, bab:"T5 Bab 10", q:"Apakah peranan rakyat dalam mencapai wawasan negara?",
+   o:["Bekerjasama dan berusaha","Mengabaikan negara","Menentang kerajaan","Membantu penjajah"], a:0,
+   e:"Rakyat perlu bekerjasama dan berusaha untuk mencapai wawasan negara."},
+  {t:5, bab:"T5 Bab 10", q:"Apakah maksud 'negara maju'?",
+   o:["Negara yang mempunyai ekonomi dan teknologi tinggi","Negara yang mundur","Negara yang miskin","Negara yang berpecah"], a:0,
+   e:"Negara maju mempunyai ekonomi, teknologi dan taraf hidup yang tinggi."},
+  {t:5, bab:"T5 Bab 10", q:"Apakah cabaran Malaysia untuk menjadi negara maju?",
+   o:["Persaingan ekonomi dan perubahan teknologi","Kemakmuran","Kestabilan","Kemajuan"], a:0,
+   e:"Cabaran termasuk persaingan ekonomi, perubahan teknologi dan kualiti modal insan."},
+  {t:5, bab:"T5 Bab 10", q:"Apakah peranan pendidikan dalam mencapai wawasan negara?",
+   o:["Melahirkan modal insan berkualiti","Mengurangkan kualiti","Mencipta kemunduran","Mengabaikan pembangunan"], a:0,
+   e:"Pendidikan melahirkan modal insan berkualiti yang menyumbang kepada kemajuan negara."},
+  {t:5, bab:"T5 Bab 10", q:"Apakah maksud 'Transformasi Nasional 2050' (TN50)?",
+   o:["Wawasan pembangunan negara menjelang 2050","Wawasan penjajahan","Wawasan peperangan","Wawasan pengasingan"], a:0,
+   e:"TN50 ialah wawasan pembangunan negara menjelang 2050."},
+  {t:5, bab:"T5 Bab 10", q:"Apakah peranan belia dalam pembangunan negara?",
+   o:["Menjadi pemimpin masa depan","Mengabaikan negara","Menentang kerajaan","Membantu penjajah"], a:0,
+   e:"Belia ialah pemimpin masa depan yang menyumbang kepada pembangunan negara."}
+];
+
+// ============ SHUFFLE ============
+function shuffleArray(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+let RUNTIME = [];
+
+function buildRuntime() {
+  RUNTIME = QUESTIONS.map((q) => {
+    const correctText = q.o[q.a];
+    const shuffled = shuffleArray(q.o);
+    return {
+      t: q.t,
+      bab: q.bab,
+      q: q.q,
+      o: shuffled,
+      a: shuffled.indexOf(correctText),
+      e: q.e
+    };
+  });
+}
+
+// ============ STATE ============
+let state = {
+  current: 0,
+  answers: {},
+  checked: {}
+};
+
+// ============ LOAD / SAVE ============
+// State TIDAK disimpan — refresh = reset automatik
+function saveState() { /* sengaja kosong */ }
+function loadState() { /* sengaja kosong */ }
+
+// ============ RENDER ============
+function render() {
+  const q = RUNTIME[state.current];
+  const total = QUESTIONS.length;
+  const answered = Object.keys(state.answers).length;
+  const isAnswered = state.checked[state.current] === true;
+
+  document.getElementById('qNumber').textContent = `Soalan ${state.current + 1} / ${total}`;
+  document.getElementById('qBab').textContent = q.bab;
+  document.getElementById('qText').textContent = q.q;
+
+  // options
+  const optDiv = document.getElementById('options');
+  optDiv.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  q.o.forEach((opt, i) => {
+    const div = document.createElement('div');
+    div.className = 'option';
+    const isSelected = state.answers[state.current] === i;
+
+    if (isAnswered) {
+      div.classList.add('locked');
+      if (i === q.a) div.classList.add('correct');
+      if (isSelected && i !== q.a) div.classList.add('wrong');
+    } else if (isSelected) {
+      div.classList.add('selected');
+    }
+
+    div.innerHTML = `<span class="option-letter">${letters[i]}</span><span class="option-text">${opt}</span>`;
+    if (!isAnswered) div.onclick = () => selectOption(i);
+    optDiv.appendChild(div);
+  });
+
+  // feedback
+  const fb = document.getElementById('feedback');
+  if (isAnswered) {
+    const chosen = state.answers[state.current];
+    const isCorrect = chosen === q.a;
+    fb.className = 'feedback show ' + (isCorrect ? 'correct' : 'wrong');
+    fb.innerHTML = `<strong>${isCorrect ? '✅ Betul!' : '❌ Salah'}</strong>Jawapan: ${letters[q.a]}. ${q.o[q.a]}<em>${q.e}</em>`;
+  } else {
+    fb.className = 'feedback';
+  }
+
+  // score pill
+  let correct = 0;
+  Object.keys(state.checked).forEach(k => {
+    if (state.checked[k] && state.answers[k] === RUNTIME[k].a) correct++;
+  });
+  document.getElementById('scorePill').textContent = `${correct}/${total}`;
+
+  // progress
+  const pct = Math.round(answered / total * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = `${answered} dijawab`;
+  document.getElementById('progressPct').textContent = pct + '%';
+
+  // nav buttons
+  document.getElementById('btnPrev').disabled = state.current === 0;
+  const nextBtn = document.getElementById('btnNext');
+  const isLast = state.current === total - 1;
+
+  if (isAnswered) {
+    nextBtn.classList.add('ready');
+    if (isLast) {
+      nextBtn.textContent = 'Lihat Keputusan 🎉';
+    } else {
+      nextBtn.textContent = 'Seterusnya →';
+    }
+    nextBtn.disabled = false;
+  } else {
+    nextBtn.classList.remove('ready');
+    nextBtn.textContent = 'Pilih jawapan dahulu';
+    nextBtn.disabled = true;
+  }
+
+  // grid nav
+  const grid = document.getElementById('gridNav');
+  grid.innerHTML = '';
+  for (let i = 0; i < total; i++) {
+    const b = document.createElement('button');
+    b.textContent = i + 1;
+    if (state.answers[i] !== undefined) b.classList.add('answered');
+    if (state.checked[i]) {
+      if (state.answers[i] === RUNTIME[i].a) b.classList.add('correct');
+      else b.classList.add('wrong');
+    }
+    if (i === state.current) b.classList.add('current');
+    b.onclick = () => {
+      state.current = i;
+      saveState();
+      render();
+      closeDrawer();
+      document.getElementById('quizBody').scrollTop = 0;
+    };
+    grid.appendChild(b);
+  }
+
+  saveState();
+}
+
+// ============ ACTIONS ============
+function selectOption(i) {
+  if (state.checked[state.current]) return;
+  state.answers[state.current] = i;
+  state.checked[state.current] = true;
+  saveState();
+  render();
+  setTimeout(() => {
+    document.getElementById('feedback').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, 100);
+}
+
+function nextQ() {
+  const total = QUESTIONS.length;
+  if (!state.checked[state.current]) return;
+
+  if (state.current === total - 1) {
+    showSummary();
+  } else {
+    state.current++;
+    saveState();
+    render();
+    document.getElementById('quizBody').scrollTop = 0;
+  }
+}
+
+function prevQ() {
+  if (state.current > 0) {
+    state.current--;
+    saveState();
+    render();
+    document.getElementById('quizBody').scrollTop = 0;
+  }
+}
+
+function resetQuiz() {
+  if (!confirm('Reset semua jawapan? (Susunan jawapan akan di-shuffle semula)')) return;
+  state = { current: 0, answers: {}, checked: {} };
+  buildRuntime();
+  saveState();
+  render();
+}
+
+// ============ DRAWER ============
+function openDrawer() {
+  document.getElementById('drawer').classList.add('show');
+  document.getElementById('overlay').classList.add('show');
+}
+function closeDrawer() {
+  document.getElementById('drawer').classList.remove('show');
+  document.getElementById('overlay').classList.remove('show');
+}
+
+// ============ SUMMARY ============
+function showSummary() {
+  const total = RUNTIME.length;
+  let correct = 0;
+  Object.keys(state.checked).forEach(k => {
+    if (state.checked[k] && state.answers[k] === RUNTIME[k].a) correct++;
+  });
+  document.getElementById('finalScore').textContent = `${correct} / ${total}`;
+  let msg = '';
+  const pct = correct / total * 100;
+  if (pct >= 80) msg = 'Cemerlang! Kau dah kuasai sebahagian besar topik.';
+  else if (pct >= 60) msg = 'Bagus! Ulang kaji bab yang lemah sikit lagi.';
+  else if (pct >= 40) msg = 'Boleh tahan. Fokus pada bab yang banyak salah.';
+  else msg = 'Jangan putus asa. Baca semula nota dan cuba lagi.';
+  document.getElementById('finalMsg').textContent = msg;
+  document.getElementById('summary').classList.add('show');
+
+  // 🎃 JUMPSCARE kalau markah < 50 — LOOP, tak auto hilang
+  if (pct < 50) {
+    setTimeout(() => triggerJumpscare(), 1200);
+  }
+}
+function closeSummary() {
+  document.getElementById('summary').classList.remove('show');
+}
+
+// ============ JUMPSCARE (simple, no Web Audio API) ============
+// ✅ Guna HTML5 audio sahaja — volume 1.0 = max, loop = true
+// Tak guna AudioContext / gainNode supaya volume tak conflict & sound tak hilang.
+function triggerJumpscare() {
+  const jc = document.getElementById('jumpscare');
+  const audio = document.getElementById('screamAudio');
+
+  jc.classList.add('show');
+
+  // Loop + volume max (HTML5 audio — maksimum yang browser benarkan)
+  audio.loop = true;
+  audio.volume = 1.0;
+  audio.currentTime = 0;
+
+  const playPromise = audio.play();
+  if (playPromise !== undefined) {
+    playPromise.catch(err => console.log('Audio playback prevented:', err));
+  }
+
+  if (navigator.vibrate) navigator.vibrate([400, 50, 400, 50, 800, 100, 800, 100, 800]);
+
+  // ❌ TIADA setTimeout — jumpscare + audio loop selamanya
+  // Satu-satunya cara keluar: refresh page
+}
+
+// ============ INIT ============
+// Setiap page load (termasuk refresh) = reset automatik
+state = { current: 0, answers: {}, checked: {} };
+buildRuntime();
+render();
+</script>
+</body>
+</html>
